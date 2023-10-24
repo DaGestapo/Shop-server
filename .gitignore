@@ -1,8 +1,7 @@
-.env
-
 
 /node_modules
 /.pnp
+/.env
 .pnp.js
 
 /dist
