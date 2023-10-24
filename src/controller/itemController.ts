@@ -98,10 +98,45 @@ class ItemController {
                     typeNumberId
                 );
             }
+            if(!items) {
+                return res.json(items);;
+            }
+
+            let response = [];
+            for(let item of items) {
+                let tempReviewArr = [];
+
+                for(let i = 0; i < item.review.length; i++) {
+                    let review = item.review[i];
+                    let user = item.review[i].user;
+
+                    for(let j = 0; j < user.rating.length; j++) {
+                        if(user.rating[j].item.id === item.id) {
+                            const tempObj = {
+                                id: review.id,
+                                review: review.review,
+                                user: {
+                                    id: user.id,
+                                    username: user.username,
+                                    email: user.email,
+                                    img: user.user_info.img
+                                },
+                                rating: {
+                                    id: user.rating[j].id,
+                                    rate: user.rating[j].rate
+                                }
+                            }
+                            tempReviewArr.push(tempObj);
+                        }
+                    }
+                }
+                response.push({...item, review: tempReviewArr});
+            }
+            
            
-            return res.json(items)
+            return res.json(response);
         } catch (error) {
-            next(ApiError.badRequest('Неизвестная ошибка' + error));
+            return next(ApiError.badRequest('Неизвестная ошибка' + error));
         }
 
 
@@ -114,11 +149,54 @@ class ItemController {
                 next(ApiError.badRequest('Введите id товара!'));
             }
             const item = await itemService.findOneTableById(id);
- 
+
             if(!item) {
-                next(ApiError.badRequest('Товара под таким id не существует!'));
+                return next(ApiError.badRequest('Товара под таким id не существует!'));
             }
-            return res.json({item});
+            // TODO FOR GETALL
+            let tempReviewArr = [];
+            for(let i = 0; i < item.review.length; i++) {
+                let review = item.review[i];
+                let user = item.review[i].user;
+
+                for(let j = 0; j < user.rating.length; j++) {
+                    if(user.rating[j].item.id === id) {
+                        const tempObj = {
+                            id: review.id,
+                            review: review.review,
+                            user: {
+                                id: user.id,
+                                username: user.username,
+                                email: user.email,
+                                img: user.user_info.img
+                            },
+                            rating: {
+                                id: user.rating[j].id,
+                                rate: user.rating[j].rate
+                            }
+                        }
+                        tempReviewArr.push(tempObj);
+                    }
+                }
+            }
+
+            return res.json({... item, review: tempReviewArr});
+
+        } catch (error) {
+            next(ApiError.badRequest('Неизвестная ошибка' + error));
+        }
+    }
+
+    public async getItemInformation(req: Request, res: Response, next: NextFunction) {
+        try {
+            const {id} = req.params;
+    
+            const itemInfo = await itemService.findItemInfoTable(id);
+            if(!itemInfo) {
+                next(ApiError.badRequest('Таблица с информацией о предмете не найдена!'));
+            }
+
+            res.json(itemInfo);
         } catch (error) {
             next(ApiError.badRequest('Неизвестная ошибка' + error));
         }

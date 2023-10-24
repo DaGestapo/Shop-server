@@ -1,10 +1,5 @@
 import { Response, Request, NextFunction } from "express";
 import ApiError from "../error/ApiError";
-import dataSource from '../db';
-import { Review } from "../entity/ReviewEnt";
-import { Item } from "../entity/ItemEnt";
-import { User } from "../entity/UserEnt";
-import { Rating } from "../entity/RatingEnt";
 
 import rateService from "../services/rateService";
 import userService from "../services/userService";
@@ -26,9 +21,13 @@ class rateController {
            if(!rateNumber) {
                 return next(ApiError.badRequest('Не введен рейтинг!'));
            }
+           if(rateNumber < 0 || rateNumber > 5) {
+                return next(ApiError.badRequest('Допустимая оценка нходится в диапазоне от 0 и до 5!'));
+           }
            if(!itemId) {
             return next(ApiError.badRequest('Неверный id товара!'));
            }
+
            const item = await itemService.findOneTableById(itemId);
            const user = await userService.findUserTableById(id);
 
@@ -45,12 +44,20 @@ class rateController {
 
            const rateTable = await rateService.createRatingTable(rateNumber, user, item);
 
-           return res.json({rate: rateTable});
+           return res.json({rateTable});
            
        } catch (error) {
             next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
        }
 
+    }
+
+    public async getRatingsByItemId(req: Request, res: Response, next: NextFunction) {
+        const {id} = req.params;
+
+        const ratings = await rateService.findRatingsByItemId(id);
+
+        res.json(ratings);
     }
 
 

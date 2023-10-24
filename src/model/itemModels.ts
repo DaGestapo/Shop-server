@@ -18,7 +18,14 @@ export interface ItemRelationTableI {
     rating: boolean;
     type: boolean;
     brand: boolean;
-    review: boolean;
+    review: {
+        user: {
+            user_info: true,
+            rating: {
+                item: true
+            }
+        }
+    };
     item_imgs: boolean;
     item_info: boolean;
 }

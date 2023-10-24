@@ -1,12 +1,11 @@
 import bcrypt from 'bcrypt';
 import { Response, Request, NextFunction } from "express";
-import { RegistrationI, LoginI } from '../model/postRequestI';
 import ApiError from '../error/ApiError';
-import {User} from '../entity/UserEnt';
-import dataSource from '../db';
 import generateJwtTokenUtil from '../utils/generateJwtTokenUtil';
 
 import userService from '../services/userService';
+import cartService from '../services/cartService';
+import wishService from '../services/wishService';
 
 class UserController {
 
@@ -38,7 +37,8 @@ class UserController {
                 next(ApiError.unauthorized('Произошла ошибка при регистрации!'));
             }
 
-            await userService.createBasketTable(user);
+            await wishService.createWhishTable(user);
+            await cartService.createCartTable(user);
             await userService.createUserInfoTable(user);
 
             const token = generateJwtTokenUtil(user.id, user.username ,user.email, user.role);

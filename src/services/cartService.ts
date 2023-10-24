@@ -3,8 +3,16 @@ import { CartItem } from "../entity/CartItemEnt";
 import { CartItemInformation } from "../entity/CartItemInformationEnt";
 import dataSource from '../db';
 import { Item } from "../entity/ItemEnt";
+import { User } from "../entity/UserEnt";
 
 class CartService {
+
+    public async createCartTable(user: User) {
+        const basket = dataSource.manager.create( Cart, {
+            user
+        });
+        await dataSource.manager.save(basket);
+    }
 
     public async cretateCartItemTable(item: Item, cart: Cart) {
         const cartItem = dataSource.manager.create(CartItem, {

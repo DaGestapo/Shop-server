@@ -15,6 +15,16 @@ class RateService {
         return await dataSource.manager.save(rateTable);
     }
 
+    public async findRatingsByItemId(itemId: string) {
+        return await dataSource.manager.find(Rating, {
+            where: {
+                item: {
+                    id: itemId
+                }
+            }
+        })
+    }
+
     public async findRateByUserItemId(userId: string, itemId: string) {
         return await dataSource.manager.findOne(Rating, {
             where: {

@@ -19,8 +19,31 @@ class ReviewService {
         return null;
     }
 
-    public async getAllReview() {
-        return await dataSource.manager.find(Review);
+    public async getReviweByItemId(itemId: string) {
+        return await dataSource.manager.find(Review, {
+            where: {
+                item: {
+                    id: itemId
+                },
+                
+            },
+            relations: {
+                user: {
+                    user_info: true,
+                    rating: true
+                }
+            }
+        })
+    }
+
+    public async getAllReviewAndRating() {
+        return await dataSource.manager.find(Review, {
+            relations: {
+                user: {
+                    rating: true
+                }
+            }
+        });
     }
 
     public async deleteReviewByUser(user: User) {

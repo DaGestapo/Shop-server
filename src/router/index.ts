@@ -9,6 +9,7 @@ import featuredProductsRouter from './featuredProductsRouter';
 import reviewRouter from './reviewRouter';
 import rateRoute from './rateRoute';
 import cartRoute from './cartRoute';
+import wishRoute from './wishRoute';
 
 const router: Router = Router();
 
@@ -23,6 +24,7 @@ export default (): Router => {
     reviewRouter({route: '/review', router});
     rateRoute({route: '/rate', router});
     cartRoute({route: '/cart', router});
+    wishRoute({route: '/wish', router});
     
     return router;
 }

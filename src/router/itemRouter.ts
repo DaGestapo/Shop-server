@@ -7,7 +7,9 @@ export default ({route, router}: RouterI) => {
 
     router.get(`${route}/:id`, itemController.getOne);
 
-     router.get(`${route}/`, itemController.getAll);
+    router.get(`${route}/`, itemController.getAll);
+
+    router.get(`${route}/info/:id`, itemController.getItemInformation);
 
 
 }

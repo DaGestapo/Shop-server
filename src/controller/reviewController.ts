@@ -1,9 +1,6 @@
 import { Response, Request, NextFunction } from "express";
 import ApiError from "../error/ApiError";
-import dataSource from '../db';
-import { Review } from "../entity/ReviewEnt";
-import { Item } from "../entity/ItemEnt";
-import { User } from "../entity/UserEnt";
+
 import reviewService from "../services/reviewService";
 import userService from "../services/userService";
 import itemService from "../services/itemService";
@@ -50,8 +47,35 @@ class ReviewController {
 
     public async getAll(req: Request, res: Response, next: NextFunction) {
         try {
-            const reviews = await reviewService.getAllReview();
-            return res.json(reviews);
+            const {id} = req.params;
+            
+            const reviews = await reviewService.getReviweByItemId(id);
+
+            let response = [];
+
+            if(reviews) {
+                for(let i = 0; i < reviews.length; i++) {
+                    const review = reviews[i];
+
+                    const responseObj = {
+                        id: review.id,
+                        review: review.review,
+                        user: {
+                            id: review.user.id,
+                            username: review.user.username,
+                            email: review.user.email,
+                            img: review.user.user_info.img
+                        },
+    
+                    }
+
+                    response.push(responseObj);
+                }
+                return res.json(response);
+            }
+            return res.json([]);
+
+            
         } catch (error) {
             next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
         }

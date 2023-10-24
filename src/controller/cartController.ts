@@ -1,16 +1,8 @@
 import { Response, Request, NextFunction } from "express";
 import ApiError from "../error/ApiError";
-import dataSource from '../db';
-import { Review } from "../entity/ReviewEnt";
-import { Item } from "../entity/ItemEnt";
-import { User } from "../entity/UserEnt";
-import reviewService from "../services/reviewService";
-import userService from "../services/userService";
 import itemService from "../services/itemService";
-import { CartItem } from "../entity/CartItemEnt";
-import { CartItemInformation } from "../entity/CartItemInformationEnt";
 import cartService from "../services/cartService";
-import { Cart } from "../entity/CartEnt";
+
 
 
 class CartController {
@@ -99,7 +91,7 @@ class CartController {
     public async delete(req: Request, res: Response, next: NextFunction) {
         try {
           const {cartedItemId, id} = req.body;
-          console.log(req.body);
+
           if(!cartedItemId) {
             return next(ApiError.badRequest('Не введун id предмета в корзине!'));
           }

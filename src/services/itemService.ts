@@ -22,7 +22,14 @@ class ItemService {
             rating: true,
             type: true,
             brand: true,
-            review: true,
+            review: {
+                user: {
+                    user_info: true,
+                    rating: {
+                        item: true
+                    }
+                }
+            },
             item_imgs: true,
             item_info: true,
         }
@@ -205,6 +212,16 @@ class ItemService {
             await dataSource.manager.save(imgsSave);
         }
         return filenames;
+    }
+
+    public async findItemInfoTable(id: string) {
+         return await dataSource.manager.findOne(ItemInfo, {
+            where: {
+                item: {
+                    id
+                }
+            }
+        })
     }
 }
 

@@ -7,5 +7,5 @@ export default ({route, router}: RouterI) => {
 
     router.delete(`${route}/`, authMiddleware, reviewController.delete);
 
-    router.get(`${route}/`, reviewController.getAll);
+    router.get(`${route}/:id`, reviewController.getAll);
 }

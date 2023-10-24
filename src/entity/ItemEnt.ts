@@ -7,6 +7,7 @@ import { Cart } from './CartEnt';
 import { ItemImgs } from './ItemImgsEnt';
 import { Review } from './ReviewEnt';
 import { CartItem } from './CartItemEnt'
+import { WishItem } from './WishItem';
 
 @Entity('item')
 export class Item extends BaseEntity {
@@ -82,6 +83,12 @@ export class Item extends BaseEntity {
         cart_item => cart_item.item
     )
     cart_item: CartItem;
+
+    @OneToMany(
+        () => WishItem,
+        wish_item => wish_item.item
+    )
+    wish_item: WishItem;
 
     @OneToMany(
         () => Review,

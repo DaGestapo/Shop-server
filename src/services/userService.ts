@@ -5,6 +5,7 @@ import { UserType } from "../entity/UserEnt";
 import { UserRoleEnum } from '../model/userModels';
 import { Cart } from "../entity/CartEnt";
 import { UserInfo } from "../entity/UserInfoEnt";
+import { Wish } from "../entity/WishEnt";
 
 import generateJwtTokenUtil from '../utils/generateJwtTokenUtil';
 
@@ -36,18 +37,6 @@ class UserService {
         await dataSource.manager.save(user);
         
         return user;
-    }
-
-    public async createBasketTable(user: User) {
-        const basket = dataSource.manager.create( Cart, {
-            user
-        });
-        await dataSource.manager.save(basket);
-    }
-
-    // TODO Whish List
-    public async createWhishTable() {
-
     }
 
     public async createUserInfoTable( user: User) {

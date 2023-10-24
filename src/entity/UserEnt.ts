@@ -4,6 +4,7 @@ import { UserInfo } from "./UserInfoEnt";
 import { Rating } from "./RatingEnt";
 import { UserRoleEnum } from '../model/userModels';
 import { Review } from "./ReviewEnt";
+import { Wish } from "./WishEnt";
 
 @Entity('user')
 export class User extends BaseEntity {
@@ -46,6 +47,12 @@ export class User extends BaseEntity {
         cart => cart.user,
     )
     cart: Cart
+
+    @OneToOne(
+        () => Wish,
+        wish => wish.user,
+    )
+    wish: Wish
 
     @OneToOne(
         () => UserInfo,
