@@ -6,6 +6,14 @@ import { Review } from '../entity/ReviewEnt';
 
 class ReviewService {
 
+    public async findReviewTableById(reviewId: string) {
+        return await dataSource.manager.findOne(Review, {
+            where: {
+                id: reviewId
+            }
+        })
+    }
+
     public async createReview(user: User, item: Item, review: string) {
        const result = dataSource.manager.create(Review, {
             item,
@@ -51,6 +59,14 @@ class ReviewService {
             user
         });
     } 
+
+    public async updateReview(review: Review, text: string) {
+       return await dataSource.manager.update(
+            Review, 
+            {id: review.id},
+            {review: text}
+        )
+    }
 
     public async findReviewByUserAndItem(user: User, item: Item) {
         return await dataSource.manager.findOne(Review, {

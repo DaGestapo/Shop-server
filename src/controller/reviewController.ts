@@ -81,6 +81,25 @@ class ReviewController {
         }
     }
 
+    public async changeReview(req: Request, res: Response, next: NextFunction) {
+        try {
+            const {reviewText, id, reviewId} = req.body;
+
+            if(!reviewText) {
+                return next(ApiError.badRequest('Нужно написать обзор!'));
+            }   
+            const review = await reviewService.findReviewTableById(reviewId);
+            if(!review) {
+                return next(ApiError.badRequest('обзор не найден!'));
+            }
+            const update = await reviewService.updateReview(review, reviewText);
+
+            res.json();
+        } catch (error) {
+            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+        }
+    }
+
     public async delete(req: Request, res: Response, next: NextFunction) {
         try {
             const {id} = req.body;
