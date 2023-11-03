@@ -175,6 +175,19 @@ class ItemService {
         
     }
 
+    public async findHotItems(skip: number, take: number) {
+        const relations = this.relations;
+        
+        return await dataSource.manager.find(Item, {
+            relations,
+            where: {
+                hot: true
+            }, 
+            skip,
+            take
+        })
+    }
+
     public async createItemTable(itemProp: ItemI) {
         const item = dataSource.manager.create(Item, itemProp);
         if(item) {

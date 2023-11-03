@@ -69,7 +69,7 @@ class ItemController {
 
     public async getAll(req: Request, res: Response, next: NextFunction) {
         try {
-            let {brandId, typeId, limit, page, leftPrice, rightPrice} = req.query;
+            let {brandId, typeId, limit, hot, page, leftPrice, rightPrice} = req.query;
 
             let take = Number(limit) || 8;
             let pageNum = Number(page) || 1;
@@ -79,7 +79,7 @@ class ItemController {
             let brandNumberId = Number(brandId) || null;
             let leftPriceNumber = Number(leftPrice) || null;
             let rightPriceNumber = Number(rightPrice) || null;
-
+     
             let items; 
             if(leftPriceNumber && rightPriceNumber) {
                 items = await itemService.getItemByPriceRange(
@@ -90,6 +90,9 @@ class ItemController {
                     brandNumberId,
                     typeNumberId
                 );
+            } else if(hot) {
+        
+               items = await itemService.findHotItems(skip, take);
             } else {
                 items = await itemService.getItemByTypeBrand(
                     skip, 
@@ -133,7 +136,6 @@ class ItemController {
                 response.push({...item, review: tempReviewArr});
             }
             
-           
             return res.json(response);
         } catch (error) {
             return next(ApiError.badRequest('Неизвестная ошибка' + error));
