@@ -3,34 +3,39 @@ import ApiError from "../error/ApiError";
 import itemService from "../services/itemService";
 import cartService from "../services/cartService";
 
+import { Item } from "../entity/ItemEnt";
+
+import { CartI } from "../model/CartI";
+import { CartItem } from "../entity/CartItemEnt";
+import { UserIdI } from "../model/UserI";
 
 
 class CartController {
     public async create(req: Request, res: Response, next: NextFunction) {
        try {
-          const {color, size, itemId, id, quantity} = req.body;
+          const {color, size, itemId, id, quantity}: CartI = req.body;
 
           const quantityNumber = Number(quantity);
           if(!color || !size) {
-            return next(ApiError.badRequest('Не выбран цвет или размер!'));
+            return next(ApiError.badRequest('No color or size selected!'));
           }
           if(!itemId) {
-            return next(ApiError.badRequest('Не указан id товара!'));
+            return next(ApiError.badRequest('The product ID is not specified!'));
           }
 
           const cartItemCandidat = await cartService.findCartItemByItemId(itemId);
           if(cartItemCandidat) {
-            return next(ApiError.badRequest('Вы уже добавили данный товар в корзину!'));
+            return next(ApiError.badRequest('You have already added this product to the cart!'));
           }
 
-          const item = await itemService.findOneTableById(itemId);
+          const item = await itemService.findTableByTableIdAndTableType(Item, itemId)
           if(!item) {
-            return next(ApiError.badRequest('Данного товара не существует!'));
+            return next(ApiError.badRequest('This product does not exist!'));
           }
 
           const userCart = await cartService.findUserCart(id);
           if(!userCart) {
-            return next(ApiError.badRequest('У пользователя нет корзины!'));
+            return next(ApiError.badRequest('The user does not have a shopping cart!'));
           }
 
           const cartItem = await cartService.cretateCartItemTable(item, userCart);
@@ -40,25 +45,24 @@ class CartController {
 
 
        } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+          next(ApiError.badRequest(`Unexpected error - ${error}!`));
        }
 
     }
 
     public async getCart(req: Request, res: Response, next: NextFunction) {
         try {
-          const {id} = req.body;
+          const {id}: UserIdI = req.body;
 
           const cart = await cartService.findUserCart(id);
           if(!cart) {
-            return next(ApiError.badRequest('Корзина не найдена!'));
+            return next(ApiError.badRequest('The basket was not found!'));
           }
 
           return res.json(cart);
-
            
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 
@@ -66,25 +70,26 @@ class CartController {
       try {
         const {quantity, cartedItemId, id} = req.body;
         const quantityNumber = Number(quantity) || null;
+
         if(!quantityNumber) {
-          return next(ApiError.badRequest(`Количество не задано!`));
+          return next(ApiError.badRequest(`The quantity is not set!`));
         }
 
         if(quantityNumber < 1 || quantityNumber > 10) {
-          return next(ApiError.badRequest(`Неподходящее количество товаров!`));
+          return next(ApiError.badRequest(`The wrong number of products!`));
         }
 
 
         const cartedItemInformation = await cartService.findCartedItemInformationTableByCartedItemIdAndUserId(cartedItemId, id);
         if(!cartedItemInformation) {
-          return next(ApiError.badRequest(`Корзина не обнаружена!`));
+          return next(ApiError.badRequest(`The item was not found in the basket!`));
         }
 
         await cartService.updateQuantityOfCartedItem(quantityNumber, cartedItemInformation);
         return res.json(quantityNumber);
 
       } catch (error) {
-        return next(ApiError.badRequest(`Неизвестная ошибка!`));
+          return next(ApiError.badRequest(`Unexpected error - ${error}!`));
       }
     }
 
@@ -93,14 +98,14 @@ class CartController {
           const {cartedItemId, id} = req.body;
 
           if(!cartedItemId) {
-            return next(ApiError.badRequest('Не введун id предмета в корзине!'));
+            return next(ApiError.badRequest('Do not know the id of the item in the basket!'));
           }
 
-          const carttedItem = await cartService.findCartItemByItemId(cartedItemId);
-          if(!carttedItem) {
-            return next(ApiError.badRequest('Предмет не обнаружен в вашей корзине!'));
+          const cartedItem = await cartService.findTableByTableIdAndTableType(CartItem, cartedItemId);
+          if(!cartedItem) {
+            return next(ApiError.badRequest('The item is not found in your shopping cart!'));
           }
-          const deleteResult = await cartService.deleteCartedItem(carttedItem);
+          await cartService.deleteArticleTableById(CartItem, cartedItemId);
 
           const cart = await cartService.findUserCart(id);
           if(!cart) {
@@ -110,7 +115,7 @@ class CartController {
           return res.json(cart);
             
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 }

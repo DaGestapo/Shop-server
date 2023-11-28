@@ -1,38 +1,39 @@
 import { Response, Request, NextFunction } from "express";
-import { TypeBrandI } from "../model/postRequestI";
+
 import ApiError from "../error/ApiError";
 import dataSource from '../db';
+
 import { Brand } from "../entity/BrandEnt";
+import { TypeBrandI } from "../model/BrandAndTypeI";
+import {brandTypeService} from "../services/BrandService";
 
 class BrandController {
     public async create(req: Request, res: Response, next: NextFunction) {
-        const data: TypeBrandI = req.body;
-            if(!data.name) {
-                next(ApiError.badRequest('Введите название бренда!'));
+        try {
+            const {name}: TypeBrandI = req.body;
+            if(!name) {
+                return next(ApiError.badRequest('The brand name is missing!'));
             }
-
-            const brand = await dataSource.manager.findOneBy(Brand, {
-                name: data.name
-            });
+            const brand = await brandTypeService.findTableByName(Brand, name);
             if(brand) {
-                next(ApiError.badRequest('Данный тип уже представлен в системе'));
+                return next(ApiError.badRequest('The brand already exists!'));
             }
     
-            const typeCandidate = dataSource.manager.create(Brand, {
-                name: data.name
-            });
-    
-            await dataSource.manager.save(typeCandidate);
+            const brandCandidate = brandTypeService.createTableByName(Brand, name);
 
-            res.status(200).json({typeCandidate});
+            return res.status(200).json(brandCandidate);
+        } catch (error) {
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
+        }
+
     }
 
     public async getAll(req: Request, res: Response, next: NextFunction) {
         try {
-            const brands = await dataSource.manager.find(Brand);
-            res.status(200).json({brands})
+            const brands = await brandTypeService.findAllTableByTableType(Brand);
+            res.status(200).json({brands});
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 
@@ -40,15 +41,13 @@ class BrandController {
         try {
             const {id} = req.body;
             if(!id) {
-                next(ApiError.badRequest('Неверный id!'));
+                next(ApiError.badRequest('Invalid id!'));
             }
-            const brand = await dataSource.manager.delete(Brand, {
-                id
-            });
-            res.status(200).json({brand});
+            const brand = await brandTypeService.deleteArticleTableById(Brand, id);
+            return res.status(200).json({brand});
         
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 }

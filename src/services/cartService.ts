@@ -5,7 +5,9 @@ import dataSource from '../db';
 import { Item } from "../entity/ItemEnt";
 import { User } from "../entity/UserEnt";
 
-class CartService {
+import { TableServices } from "./TableServices";
+
+class CartService extends TableServices{
 
     public async createCartTable(user: User) {
         const basket = dataSource.manager.create( Cart, {
@@ -40,10 +42,12 @@ class CartService {
         return cartItemInfo;
     }
 
-    public async findCartItemByItemId(cartedItemId: string) {
+    public async findCartItemByItemId(itemId: string) {
         return await dataSource.manager.findOne(CartItem, {
             where: {
-               id: cartedItemId
+               item: {
+                id: itemId
+               }
             }
           });
     }
@@ -89,9 +93,6 @@ class CartService {
         );
     }
 
-    public async deleteCartedItem(cartedItem: CartItem) {
-        return await dataSource.manager.delete(CartItem, cartedItem);
-    }
 }
 
 export default new CartService();

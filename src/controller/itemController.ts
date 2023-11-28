@@ -2,9 +2,13 @@ import { Response, Request, NextFunction } from "express";
 import ApiError from "../error/ApiError";
 import uuid = require('uuid');
 
+import { Item } from "../entity/ItemEnt";
+
 import path from "path";
 import itemService from "../services/itemService";
 import { ItemInfoI } from "../model/itemModels";
+import { Type } from "../entity/TypeEnt";
+import { Brand } from "../entity/BrandEnt";
 
 
 class ItemController {
@@ -13,13 +17,13 @@ class ItemController {
             let {name, price, typeId, brandId, info, hot, priceOff} = req.body;
 
             if(!req.files ) {
-                return next(ApiError.badRequest('Отсутствует файл!'));
+                return next(ApiError.badRequest('Images is missing!'));
             } else if(!name) {
-                return next(ApiError.badRequest('Невеное название товара!'));
+                return next(ApiError.badRequest('Incorrect product name!'));
             } else if (!brandId || !typeId) {
-                return next(ApiError.badRequest('Невеное название типа или бренда товара!'));
+                return next(ApiError.badRequest('Incorrect product type or brand name!'));
             } else if (!info) {
-                return next(ApiError.badRequest('Информация о товаре не указана!'));
+                return next(ApiError.badRequest('Product information is not specified!'));
             } 
 
             const parseInfo: ItemInfoI = JSON.parse(info);
@@ -38,10 +42,10 @@ class ItemController {
                 parseHot = JSON.parse(hot);
             }
 
-            const type = await itemService.findTableByType(typeId);
-            const brand = await itemService.findTableByBrand(brandId);
+            const type = await itemService.findTableByTableIdAndTableType(Type, typeId);
+            const brand = await itemService.findTableByTableIdAndTableType(Brand, brandId);
             if(!type || !brand) {
-                return next(ApiError.badRequest('Данного типа или бренда не существует!'));
+                return next(ApiError.badRequest('This type or brand does not exist!'));
             }
 
             const filename = uuid.v4() + '.svg';
@@ -63,7 +67,7 @@ class ItemController {
 
             return res.json({item});
         } catch (error) {
-            next(ApiError.badRequest('Неизвестная ошибка' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 
@@ -80,8 +84,9 @@ class ItemController {
             let leftPriceNumber = Number(leftPrice) || null;
             let rightPriceNumber = Number(rightPrice) || null;
      
-            let items; 
+            let items: Item[] | null = null;
             if(leftPriceNumber && rightPriceNumber) {
+
                 items = await itemService.getItemByPriceRange(
                     leftPriceNumber, 
                     rightPriceNumber, 
@@ -91,9 +96,10 @@ class ItemController {
                     typeNumberId
                 );
             } else if(hot) {
-        
+
                items = await itemService.findHotItems(skip, take);
             } else {
+
                 items = await itemService.getItemByTypeBrand(
                     skip, 
                     take, 
@@ -138,7 +144,7 @@ class ItemController {
             
             return res.json(response);
         } catch (error) {
-            return next(ApiError.badRequest('Неизвестная ошибка' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
 
 
@@ -185,7 +191,7 @@ class ItemController {
             return res.json({... item, review: tempReviewArr});
 
         } catch (error) {
-            next(ApiError.badRequest('Неизвестная ошибка' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 
@@ -200,7 +206,7 @@ class ItemController {
 
             res.json(itemInfo);
         } catch (error) {
-            next(ApiError.badRequest('Неизвестная ошибка' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
         

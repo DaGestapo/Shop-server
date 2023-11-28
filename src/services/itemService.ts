@@ -13,11 +13,14 @@ import { ItemImgs } from "../entity/ItemImgsEnt";
 import { ItemI, ItemInfoI, ItemRelationTableI } from "../model/itemModels";
 import { hash } from "bcrypt";
 
+import { TableServices } from "./TableServices";
 
-class ItemService {
+
+class ItemService extends TableServices {
     private relations: ItemRelationTableI;
 
     constructor() {
+        super();
         this.relations = {
             rating: true,
             type: true,
@@ -87,6 +90,8 @@ class ItemService {
                 take
             })
         }
+
+        return null;
     }
 
     public async getItemByPriceRange(
@@ -148,7 +153,9 @@ class ItemService {
                 skip,
                 take
             })
-        }
+        } 
+
+        return null;
     }
 
     public async findTableByType(typeId: number) {
