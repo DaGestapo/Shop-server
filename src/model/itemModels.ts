@@ -1,3 +1,5 @@
+import { Item } from "../entity/ItemEnt";
+
 export interface ItemI {
     name: string | undefined;
     price: number | undefined;
@@ -8,7 +10,7 @@ export interface ItemI {
 }
 
 export interface ItemInfoI {
-    descriptions: string | undefined;
+    description: string | undefined;
     colors: string | undefined;
     available: boolean | undefined;
     sizes: string | undefined;

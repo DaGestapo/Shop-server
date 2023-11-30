@@ -7,23 +7,34 @@ import userService from '../services/userService';
 import cartService from '../services/cartService';
 import wishService from '../services/wishService';
 
+
 class UserController {
+    private regExpEmail: RegExp;
+
+    constructor() {
+        this.regExpEmail = new RegExp(`[a-z0-9!#$%&'*+/=?^_'{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_'{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?`);
+    }
 
     public async registration(req: Request, res: Response, next: NextFunction) {
         try {
-            let {username, email, password, role} = req.body;
+            let {username, email, password, passwordAgain, role} = req.body;
+            const compareWithRegExp = this.regExpEmail.test(email);
 
             if(!email) {
-                next(ApiError.unauthorized('Неверно введен email!'));
+                return next(ApiError.unauthorized('The email was entered incorrectly!'));
             } else if(!password) {
-                next(ApiError.unauthorized('Неверно введен пароль!'));
+                return next(ApiError.unauthorized('The password was entered incorrectly!'));
             } else if(!username) {
-                next(ApiError.unauthorized('Введите ваше имя!'));
+                return next(ApiError.unauthorized('Enter your name!'));
+            } else if(!compareWithRegExp) {
+                return next(ApiError.badRequest(`Its not a email expresion!`));
+            } else if(passwordAgain !== password) {
+                return next(ApiError.badRequest(`The repeated password was entered incorrectly!`));
             }
 
             const candidate = await userService.checkCandidat(email);
             if(candidate) {
-                next(ApiError.unauthorized('Пользователь с таким email уже существует!'));
+                return next(ApiError.unauthorized('A user with this email already exists!'));
             }
 
             const user = await userService.creteNewUser({
@@ -34,7 +45,7 @@ class UserController {
                 role
             });
             if(!user) {
-                next(ApiError.unauthorized('Произошла ошибка при регистрации!'));
+                return next(ApiError.unauthorized('An error occurred during registration!'));
             }
 
             await wishService.createWhishTable(user);
@@ -42,28 +53,32 @@ class UserController {
             await userService.createUserInfoTable(user);
 
             const token = generateJwtTokenUtil(user.id, user.username ,user.email, user.role);
-            res.status(200).json({token});
+            return res.status(200).json({token});
 
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 
     public async login(req: Request, res: Response, next: NextFunction) {
         try {
             const {username, email, password} = req.body;
-
+            const compareWithRegExp = this.regExpEmail.test(email);
+            
             if(!email && !username) {
-                return next(ApiError.unauthorized('Введите имя пользователя или email!'));
+                return next(ApiError.unauthorized('Username or email is not entered!'));
             } else if(!password) {
-                return next(ApiError.unauthorized('Пароль не введен!'));
+                return next(ApiError.unauthorized('The password is not entered!'));
+            } else if(!compareWithRegExp) {
+                return next(ApiError.unauthorized(`It's not a email expresion!`));
             }
 
             const user = email
                 ? await userService.findUserTableByEmail(email)
                 : await userService.findUserTableByUsername(username);
+            
             if(!user) {
-                return next(ApiError.badRequest('Такого пользователя не существует'));
+                return next(ApiError.badRequest('There is no such user!'));
             }
 
             const comparePassword = await bcrypt.compare(password, user.password);
@@ -71,12 +86,11 @@ class UserController {
                 return next(ApiError.unauthorized('Неверный пароль!'));
             } else {
                 const token = generateJwtTokenUtil(user.id, user.username ,user.email, user.role);
-                res.status(200).json({token});
+                return res.status(200).json({token});
             }
 
-            
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 
@@ -87,7 +101,7 @@ class UserController {
             res.status(200).json({token});
         
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 
@@ -95,42 +109,39 @@ class UserController {
         try {
             const {id} = req.body;
             if(!id) {
-                return  next(ApiError.badRequest('Неверный id!'));
+                return  next(ApiError.badRequest('Invalid id!'));
             }
             const user = await userService.findUserTableById(id);
             if(!user) {
-                return  next(ApiError.badRequest('Пользователя не существует!'));
+                return  next(ApiError.badRequest('The user does not exist!'));
             }
 
             return res.json({balance: user.balance});
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 
     public async deleteAccount(req: Request, res: Response, next: NextFunction) {
         try {
-            // Get id from token
             const {id} = req.body;
             if(!id) {
-                return next(ApiError.badRequest('Неверный id!'));
+                return next(ApiError.badRequest('Invalid id!'));
             }
             const user = await userService.findUserTableById(id);
-
             if(!user) {
-                return next(ApiError.badRequest('Не удалось найти пользователя!'));
+                return next(ApiError.badRequest(`Couldn't find the user!`));
             }
 
             const deleteResult = await userService.deleteUserTable(user);
-
             if(deleteResult) {
-                res.json({message: 'Ваш аккаунт успешно удален!'}).status(200);
+                return res.json({message: 'Your account has been successfully deleted!'}).status(200);
             } else {
-                return next(ApiError.badRequest('Не удалось удалить ваш аккаунт!'));
+                return next(ApiError.badRequest(`Couldn't delete your account!`));
             }
         
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 

@@ -4,6 +4,13 @@ import { EntityTarget } from "typeorm";
 
 export class TableServices {
 
+    public async createTableByTableTypeAndProps<T extends EntityTarget<any>>
+    (Table: T, props: any) {
+        const table = dataSource.manager.create(Table, props);
+
+        return await dataSource.manager.save(table);
+    }
+
     public async findAllTableByTableType<T extends EntityTarget<any>>
     (Table: T, take?: number) {
         return await dataSource.manager.find(Table, {

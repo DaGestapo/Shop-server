@@ -14,78 +14,76 @@ export interface RateI {
 class rateController {
     public async create(req: Request, res: Response, next: NextFunction) {
        try {
-           let {id, itemId, rate}: RateI = req.body;
+            let {id, itemId, rate}: RateI = req.body;
+            const rateNumber: number | null = Number(rate) || null;
 
-           const rateNumber: number | null = Number(rate) || null;
+            if(!rateNumber) {
+                return next(ApiError.badRequest('No rating entered!'));
+            }
+            if(rateNumber < 0 || rateNumber > 5) {
+                return next(ApiError.badRequest('The acceptable score is in the range from 0 to 5!'));
+            }
+            if(!itemId) {
+                return next(ApiError.badRequest('Invalid product ID!'));
+            }
 
-           if(!rateNumber) {
-                return next(ApiError.badRequest('Не введен рейтинг!'));
-           }
-           if(rateNumber < 0 || rateNumber > 5) {
-                return next(ApiError.badRequest('Допустимая оценка нходится в диапазоне от 0 и до 5!'));
-           }
-           if(!itemId) {
-            return next(ApiError.badRequest('Неверный id товара!'));
-           }
+            const item = await itemService.findOneTableById(itemId);
+            const user = await userService.findUserTableById(id);
 
-           const item = await itemService.findOneTableById(itemId);
-           const user = await userService.findUserTableById(id);
+            if(!item) {
+                return next(ApiError.badRequest('This product does not exist!'));
+            }
+            if(!user) {
+                return next(ApiError.badRequest('This product does not exist!'));
+            }
 
-           if(!item) {
-            return next(ApiError.badRequest('Данного товара не существует!'));
-           }
-           if(!user) {
-            return next(ApiError.badRequest('Данного товара не существует!'));
-           }
-           const rateCandidat = await rateService.findRateByUserItemId(user.id, item.id );
-           if(rateCandidat) {
-                return next(ApiError.badRequest('Вы уже ставили оценку данномуц товару!'));
-           }
+            const rateCandidat = await rateService.findRateByUserItemId(user.id, item.id);
+            if(rateCandidat) {
+                return next(ApiError.badRequest('You have already rated this product!'));
+            }
 
-           const rateTable = await rateService.createRatingTable(rateNumber, user, item);
-
-           return res.json({rateTable});
-           
+            const rateTable = await rateService.createRatingTable(rateNumber, user, item);
+            return res.json({rateTable});
+            
        } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
        }
 
     }
 
     public async getRatingsByItemId(req: Request, res: Response, next: NextFunction) {
-        const {id} = req.params;
-
-        const ratings = await rateService.findRatingsByItemId(id);
-
-        res.json(ratings);
+        try {
+            const {id} = req.params;
+            const ratings = await rateService.findRatingsByItemId(id);
+    
+            return res.json(ratings);   
+        } catch (error) {
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
+        }
     }
 
 
     public async delete(req: Request, res: Response, next: NextFunction) {
         try {
             let {id, itemId} = req.body;
-
             if(!itemId) {
-                return next(ApiError.badRequest('Неверный id товара!'));
+                return next(ApiError.badRequest('Invalid product ID!'));
             }
 
             const rate = await rateService.findRateByUserItemId(id, itemId);
-
             if(!rate) {
-                return next(ApiError.badRequest('Не удалось найти ваш рейтинг по данному товару!'));
+                return next(ApiError.badRequest('I could not find your rating for this product!'));
             }
 
             const deleteResult = await rateService.deleteUserRateById(rate);
-
             if(deleteResult) {
-                res.json({message: 'Ваша оценкка успешно удалена!'});
+                return res.json({message: 'Your score has been successfully deleted!'});
             } else {
-                res.json({message: 'Не удалось стереть ваш отзыв!'});
+                return next(ApiError.badRequest(`Couldn't erase your review!`));
             }
-        
            
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 }

@@ -109,7 +109,7 @@ class CartController {
 
           const cart = await cartService.findUserCart(id);
           if(!cart) {
-            return next(ApiError.badRequest('Корзина не найдена!'));
+            return next(ApiError.badRequest('The basket was not found!'));
           }
 
           return res.json(cart);

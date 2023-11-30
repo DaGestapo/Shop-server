@@ -30,7 +30,8 @@ export interface AdvantagesI extends ArticleI {
 
 export interface FeaturedItemI extends TitleI {
     price: string;
-    priceOff: string | null; 
+    priceOff?: string | null; 
+    img: string;
 }
 
 export interface NewsI extends ArticleI {

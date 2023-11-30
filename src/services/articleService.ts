@@ -7,9 +7,10 @@ import {TableServices} from './TableServices';
 class ArticleService extends TableServices{
 
     public async createActicleTable<T extends EntityTarget<ArticleType>>
-    (Article: T, props: ArticlePropsType) {
-    const article = dataSource.manager.create( Article, props);
-    await dataSource.manager.save(article);
+    (Article: T, props: ArticlePropsType): 
+        Promise<ArticlePropsType> {
+        const article = dataSource.manager.create( Article, props);
+        return await dataSource.manager.save(article);
     }
 
     public async findOneArticleTableByTitle<T extends EntityTarget<ArticleType>>

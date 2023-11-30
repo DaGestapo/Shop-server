@@ -203,11 +203,18 @@ class ItemService extends TableServices {
         return item;
     }
 
-    public async creteInfoTable(info: ItemInfoI) {
-        const infoSave = dataSource.manager.create(ItemInfo, info);
-        if(infoSave) {
-            dataSource.manager.save(infoSave);
-        }
+    public async creteInfoTable(info: ItemInfoI, item?: Item) {
+        if(!item) return;
+
+        const infoSave = dataSource.manager.create(ItemInfo, {
+            item,
+            description: info.description,
+            colors: JSON.stringify(info.colors),
+            available: info.available,
+            sizes: JSON.stringify(info.sizes)
+        });
+        dataSource.manager.save(infoSave);
+        
 
     }
 

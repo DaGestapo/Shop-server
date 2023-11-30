@@ -12,7 +12,7 @@ class BrandTypeService extends TableServices {
             name
         });
 
-        await dataSource.manager.save(candidat);
+        return await dataSource.manager.save(candidat);
     }
 
     public async findTableByName<T extends EntityTarget<ProducteBrandAndTypeType>>

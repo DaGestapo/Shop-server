@@ -10,29 +10,27 @@ class WishController {
             const {itemId, id} = req.body;
 
             if(!itemId) {
-                next(ApiError.badRequest(`id товара не введен!`));
+                return next(ApiError.badRequest(`the product ID is not entered!`));
             }
 
             const item = await itemService.findOneTableById(itemId);
             const wishTable = await wishService.findUserWishTable(id);
 
             if(!item) {
-                return next(ApiError.badRequest(`товар не найден!`));
+                return next(ApiError.badRequest(`The product was not found!`));
             }
             if(!wishTable) {
-                return next(ApiError.badRequest(`Список желаний не найден!`));
+                return next(ApiError.badRequest(`Wish list not found!`));
             }
 
             const wishItem = await wishService.cretateWishItemTable(item, wishTable);
             if(!wishItem) {
-                return next(ApiError.badRequest(`Не удалось добавить товар в список желаймого!`));
+                return next(ApiError.badRequest(`Could not add the product to the desired list!`));
             }
 
             return res.json(wishItem);
-
-
        } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
        }
 
     }
@@ -40,14 +38,12 @@ class WishController {
     public async getWish(req: Request, res: Response, next: NextFunction) {
         try {
             const {id} = req.body;
-
             const wishItems = await wishService.findUserWishItems(id);
 
             return res.json(wishItems);
-
            
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 
@@ -56,12 +52,12 @@ class WishController {
           const {wishItemId, id} = req.body;
 
           if(!wishItemId) {
-            return next(ApiError.badRequest('Не введен id товара из списка желаемого!'));
+            return next(ApiError.badRequest('The product ID from the desired list has not been entered!'));
           }
           
           const wishItem = await wishService.findWishItemByWishItemId(wishItemId, id);
           if(!wishItem) {
-            return next(ApiError.badRequest('Желаемый товар не обнаружен!'));
+            return next(ApiError.badRequest('The desired product has not been detected!'));
           }
 
           await wishService.deleteWishItem(wishItem);
@@ -70,7 +66,7 @@ class WishController {
           return res.json(wishedItems);
             
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 }

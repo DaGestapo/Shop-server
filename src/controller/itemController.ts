@@ -7,8 +7,6 @@ import { Item } from "../entity/ItemEnt";
 import path from "path";
 import itemService from "../services/itemService";
 import { ItemInfoI } from "../model/itemModels";
-import { Type } from "../entity/TypeEnt";
-import { Brand } from "../entity/BrandEnt";
 
 
 class ItemController {
@@ -25,44 +23,47 @@ class ItemController {
             } else if (!info) {
                 return next(ApiError.badRequest('Product information is not specified!'));
             } 
-
+            
             const parseInfo: ItemInfoI = JSON.parse(info);
-
+    
             let saleOff: number | undefined = undefined;
             let parseHot: boolean = false;
             price = Number(price);
             typeId = Number(typeId);
             brandId = Number(brandId); 
-
+    
             if(priceOff) {
                 priceOff = Number(priceOff);
-                saleOff = price/priceOff * 100;
+                saleOff = Math.round(price/priceOff * 100);
             }
             if(hot) {
                 parseHot = JSON.parse(hot);
             }
-
-            const type = await itemService.findTableByTableIdAndTableType(Type, typeId);
-            const brand = await itemService.findTableByTableIdAndTableType(Brand, brandId);
+           
+            const type = await itemService.findTableByType(typeId);
+            const brand = await itemService.findTableByBrand(brandId);
             if(!type || !brand) {
                 return next(ApiError.badRequest('This type or brand does not exist!'));
             }
-
+            
             const filename = uuid.v4() + '.svg';
             if(!(req.files.img instanceof Array)) {
                 const img = req.files.img;
                 img.mv(path.resolve(__dirname, '..', 'static', filename));
             }
-
-            const item = await itemService.createItemTable({
+    
+            const item = await itemService.createTableByTableTypeAndProps(Item, {
                 name,
                 price,
                 priceOff,
                 saleOff,
                 img: filename,
-                hot: parseHot                
-            })
-            await itemService.creteInfoTable(parseInfo);
+                hot: parseHot,
+                brand,
+                type                
+            });
+            
+            await itemService.creteInfoTable(parseInfo, item);
             await itemService.creteImgsTable(req.files.imgs, item);
 
             return res.json({item});
@@ -96,10 +97,8 @@ class ItemController {
                     typeNumberId
                 );
             } else if(hot) {
-
                items = await itemService.findHotItems(skip, take);
             } else {
-
                 items = await itemService.getItemByTypeBrand(
                     skip, 
                     take, 
@@ -141,7 +140,7 @@ class ItemController {
                 }
                 response.push({...item, review: tempReviewArr});
             }
-            
+
             return res.json(response);
         } catch (error) {
             return next(ApiError.badRequest(`Unexpected error - ${error}!`));
@@ -154,12 +153,12 @@ class ItemController {
         try {
             const {id} = req.params;
             if(!id) {
-                next(ApiError.badRequest('Введите id товара!'));
+                next(ApiError.badRequest('Invalid Id!'));
             }
             const item = await itemService.findOneTableById(id);
 
             if(!item) {
-                return next(ApiError.badRequest('Товара под таким id не существует!'));
+                return next(ApiError.badRequest('There is no product with this id!'));
             }
             // TODO FOR GETALL
             let tempReviewArr = [];
@@ -201,7 +200,7 @@ class ItemController {
     
             const itemInfo = await itemService.findItemInfoTable(id);
             if(!itemInfo) {
-                next(ApiError.badRequest('Таблица с информацией о предмете не найдена!'));
+                next(ApiError.badRequest('The table with information about the subject was not found!'));
             }
 
             res.json(itemInfo);

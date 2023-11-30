@@ -15,32 +15,30 @@ class ReviewController {
     public async create(req: Request, res: Response, next: NextFunction) {
        try {
             const {reviewText, id, itemId}: ReviewI = req.body;
-
-            if(!reviewText) {
-                return next(ApiError.badRequest('Нужно написать обзор!'));
-            }
             const item = await itemService.findOneTableById(itemId);
             const user = await userService.findUserTableById(id);
 
+            if(!reviewText) {
+                return next(ApiError.badRequest('Your review is empty!'));
+            }
             if(!item) {
-                return next(ApiError.badRequest('Неверный id товара или товара не существует!'));
+                return next(ApiError.badRequest('Invalid product id or product does not exist!'));
             }
             if(!user) {
-                return next(ApiError.badRequest('Пользователя не существует!'));
+                return next(ApiError.badRequest('The user does not exist!'));
             }
 
             const reviewCandidat = await reviewService.findReviewByUserAndItem(user, item);
             if(reviewCandidat) {
-                return next(ApiError.badRequest('Вы уже писали обзор!'));
+                return next(ApiError.badRequest('You have already written a review!'));
             }
 
             const review = await reviewService.createReview(user, item, reviewText);
 
             return res.json({review});
 
-
        } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
        }
 
     }
@@ -48,15 +46,12 @@ class ReviewController {
     public async getAll(req: Request, res: Response, next: NextFunction) {
         try {
             const {id} = req.params;
-            
             const reviews = await reviewService.getReviweByItemId(id);
-
-            let response = [];
+            const response = [];
 
             if(reviews) {
                 for(let i = 0; i < reviews.length; i++) {
                     const review = reviews[i];
-
                     const responseObj = {
                         id: review.id,
                         review: review.review,
@@ -68,16 +63,14 @@ class ReviewController {
                         },
     
                     }
-
                     response.push(responseObj);
                 }
                 return res.json(response);
             }
             return res.json([]);
-
             
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 
@@ -86,17 +79,17 @@ class ReviewController {
             const {reviewText, id, reviewId} = req.body;
 
             if(!reviewText) {
-                return next(ApiError.badRequest('Нужно написать обзор!'));
+                return next(ApiError.badRequest('Your review is empty!'));
             }   
             const review = await reviewService.findReviewTableById(reviewId);
             if(!review) {
-                return next(ApiError.badRequest('обзор не найден!'));
+                return next(ApiError.badRequest('The review was not found!'));
             }
             const update = await reviewService.updateReview(review, reviewText);
 
             res.json();
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 
@@ -104,19 +97,19 @@ class ReviewController {
         try {
             const {id} = req.body;
             if(!id) {
-                return next(ApiError.badRequest('Не введен id!'));
+                return next(ApiError.badRequest('Invalid id!'));
             }
 
             const user = await userService.findUserTableById(id);
             if(!user) {
-                return next(ApiError.badRequest('Пользователя не существует!'));
+                return next(ApiError.badRequest('The user does not exist!'));
             }
 
             const review = await reviewService.deleteReviewByUser(user);
 
             return res.json({review});
         } catch (error) {
-            next(ApiError.badRequest('Непредвиденная ошибка - ' + error));
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
     }
 }
