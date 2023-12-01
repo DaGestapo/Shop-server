@@ -20,17 +20,35 @@ class TypeController {
     
             const newType = await brandTypeService.createTableByName(Type, name);
 
-            return res.status(200).json({newType});
+            return res.status(200).json(newType);
        } catch (error) {
             return next(ApiError.badRequest(`Unexpected error - ${error}!`));
        }
 
     }
 
+    public async getOneById(req: Request, res: Response, next: NextFunction) {
+        try {
+            const {typeId} = req.params;
+
+            if(!typeId) {
+                return next(ApiError.badRequest('The brand ID is missing!'));
+            }
+
+            const type = await brandTypeService.findTableByTableIdAndTableType(Type, typeId);
+    
+            return res.json(type);
+        } catch (error) {
+            return next(ApiError.badRequest(`Unexpected error - ${error}!`));
+        }
+        
+    
+    }
+
     public async getAll(req: Request, res: Response, next: NextFunction) {
         try {
             const types = await brandTypeService.findAllTableByTableType(Type);
-            return res.status(200).json({types});
+            return res.status(200).json(types);
 
         } catch (error) {
             return next(ApiError.badRequest(`Unexpected error - ${error}!`));
@@ -47,7 +65,7 @@ class TypeController {
             await brandTypeService.deleteArticleTableById(Type, id);
             const types = brandTypeService.findAllTableByTableType(Type);
 
-            return res.status(200).json({types});
+            return res.status(200).json(types);
         
         } catch (error) {
             return next(ApiError.badRequest(`Unexpected error - ${error}!`));
