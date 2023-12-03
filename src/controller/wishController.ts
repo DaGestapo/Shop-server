@@ -28,7 +28,7 @@ class WishController {
                 return next(ApiError.badRequest(`Could not add the product to the desired list!`));
             }
 
-            return res.json(wishItem);
+            return res.json({message: `The item has been added to the wish list!`});
        } catch (error) {
             return next(ApiError.badRequest(`Unexpected error - ${error}!`));
        }

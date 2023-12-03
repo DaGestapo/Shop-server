@@ -40,8 +40,8 @@ class CartController {
 
           const cartItem = await cartService.cretateCartItemTable(item, userCart);
           const cartItemInfo = await cartService.cretateCartItemInformationTable(cartItem, color, size, quantityNumber);
-
-          return res.json({cartItem});
+          console.log(cartItem);
+          return res.json(cartItem);
 
 
        } catch (error) {
@@ -58,7 +58,7 @@ class CartController {
           if(!cart) {
             return next(ApiError.badRequest('The basket was not found!'));
           }
-
+       
           return res.json(cart);
            
         } catch (error) {
@@ -106,12 +106,12 @@ class CartController {
             return next(ApiError.badRequest('The item is not found in your shopping cart!'));
           }
           await cartService.deleteArticleTableById(CartItem, cartedItemId);
-
           const cart = await cartService.findUserCart(id);
+   
           if(!cart) {
             return next(ApiError.badRequest('The basket was not found!'));
           }
-
+        
           return res.json(cart);
             
         } catch (error) {

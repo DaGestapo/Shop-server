@@ -43,7 +43,7 @@ class rateController {
             }
 
             const rateTable = await rateService.createRatingTable(rateNumber, user, item);
-            return res.json({rateTable});
+            return res.json(rateTable);
             
        } catch (error) {
             return next(ApiError.badRequest(`Unexpected error - ${error}!`));
@@ -53,7 +53,7 @@ class rateController {
 
     public async getRatingsByItemId(req: Request, res: Response, next: NextFunction) {
         try {
-            const {id} = req.params;
+            const {id} = req.params; //itemId
             const ratings = await rateService.findRatingsByItemId(id);
     
             return res.json(ratings);   

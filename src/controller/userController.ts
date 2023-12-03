@@ -116,7 +116,7 @@ class UserController {
                 return  next(ApiError.badRequest('The user does not exist!'));
             }
 
-            return res.json({balance: user.balance});
+            return res.json(user.balance);
         } catch (error) {
             return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }

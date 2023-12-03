@@ -54,8 +54,9 @@ class ReviewService {
         });
     }
 
-    public async deleteReviewByUser(user: User) {
+    public async deleteReviewByUser(user: User, reviewId: string) {
         return await dataSource.manager.delete(Review, {
+            id: reviewId,
             user
         });
     } 

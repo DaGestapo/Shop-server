@@ -27,11 +27,9 @@ export class TableServices {
 
     public async deleteArticleTableById<T extends EntityTarget<any>>
     (Table: T, id: string | number) {
-        const article = await dataSource.manager.delete(Table, {
+        await dataSource.manager.delete(Table, {
             id
         });
-
-        await dataSource.manager.save(article);
     }
 
 }

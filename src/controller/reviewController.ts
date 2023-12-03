@@ -35,7 +35,7 @@ class ReviewController {
 
             const review = await reviewService.createReview(user, item, reviewText);
 
-            return res.json({review});
+            return res.json(review);
 
        } catch (error) {
             return next(ApiError.badRequest(`Unexpected error - ${error}!`));
@@ -86,8 +86,8 @@ class ReviewController {
                 return next(ApiError.badRequest('The review was not found!'));
             }
             const update = await reviewService.updateReview(review, reviewText);
-
-            res.json();
+            
+            res.json(review);
         } catch (error) {
             return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
@@ -95,7 +95,7 @@ class ReviewController {
 
     public async delete(req: Request, res: Response, next: NextFunction) {
         try {
-            const {id} = req.body;
+            const {id, reviewId} = req.body;
             if(!id) {
                 return next(ApiError.badRequest('Invalid id!'));
             }
@@ -105,9 +105,13 @@ class ReviewController {
                 return next(ApiError.badRequest('The user does not exist!'));
             }
 
-            const review = await reviewService.deleteReviewByUser(user);
-
-            return res.json({review});
+            const reviewResult = await reviewService.deleteReviewByUser(user, reviewId);
+            if(reviewResult) {
+                return res.json({message: 'The review has been successfully deleted!'});
+            } else {
+                return next(ApiError.badRequest(`An error occurred while deleting the review!`));
+            }
+            
         } catch (error) {
             return next(ApiError.badRequest(`Unexpected error - ${error}!`));
         }
