@@ -2,6 +2,7 @@ import { Response, Request, NextFunction } from "express";
 import ApiError from "../error/ApiError";
 import wishService from "../services/wishService";
 import itemService from "../services/itemService";
+import cartService from "../services/cartService";
 
 
 class WishController {
@@ -23,9 +24,20 @@ class WishController {
                 return next(ApiError.badRequest(`Wish list not found!`));
             }
 
-            const wishItem = await wishService.cretateWishItemTable(item, wishTable);
-            if(!wishItem) {
-                return next(ApiError.badRequest(`Could not add the product to the desired list!`));
+            const wishItem = await wishService.findWishItemByItemIdAndUserId(itemId, id);
+            if(wishItem) {
+                return next(ApiError.badRequest(`This product is already on the wish list!`));
+            }
+
+            
+            const cartItem = await cartService.findCartItemByUserIdAndItemId(itemId, id);
+            if(cartItem) {
+                return next(ApiError.badRequest(`This product is already in the cart!`));
+            }
+
+            const wishCandidat = await wishService.cretateWishItemTable(item, wishTable);
+            if(!wishCandidat) {
+                return next(ApiError.badRequest(`Could not add the product to the wish list!`));
             }
 
             return res.json({message: `The item has been added to the wish list!`});

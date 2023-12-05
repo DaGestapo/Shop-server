@@ -14,6 +14,7 @@ class CartController {
     public async create(req: Request, res: Response, next: NextFunction) {
        try {
           const {color, size, itemId, id, quantity}: CartI = req.body;
+          console.log(req.body);
 
           const quantityNumber = Number(quantity);
           if(!color || !size) {
@@ -23,7 +24,8 @@ class CartController {
             return next(ApiError.badRequest('The product ID is not specified!'));
           }
 
-          const cartItemCandidat = await cartService.findCartItemByItemId(itemId);
+          const cartItemCandidat = await cartService.findCartItemByItemId(itemId, id);
+          console.log(cartItemCandidat)
           if(cartItemCandidat) {
             return next(ApiError.badRequest('You have already added this product to the cart!'));
           }

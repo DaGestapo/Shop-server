@@ -33,6 +33,21 @@ class WishService {
         })
     }
 
+    public async findWishItemByItemIdAndUserId(itemId: string, userId: string) {
+        return await dataSource.manager.findOne(WishItem, {
+            where: {
+                wish: {
+                    user: {
+                        id: userId
+                    }
+                },
+                item: {
+                    id: itemId
+                }
+            }
+        })
+    }
+
     public async findUserWishTable(userId: string) {
          return await dataSource.manager.findOne(Wish, {
             where: {

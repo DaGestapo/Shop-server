@@ -42,11 +42,16 @@ class CartService extends TableServices{
         return cartItemInfo;
     }
 
-    public async findCartItemByItemId(itemId: string) {
+    public async findCartItemByItemId(itemId: string, userId: string) {
         return await dataSource.manager.findOne(CartItem, {
             where: {
                item: {
                 id: itemId
+               },
+               cart: {
+                user: {
+                    id: userId
+                }
                }
             }
           });
@@ -92,6 +97,22 @@ class CartService extends TableServices{
             {quantity}
         );
     }
+
+    public async findCartItemByUserIdAndItemId(itemId: string, userId: string ) {
+        return await dataSource.manager.findOne(CartItem, {
+            where: {
+                cart: {
+                    user: {
+                        id: userId
+                    }
+                },
+                item: {
+                    id: itemId
+                }
+            }
+        });
+    }
+    
 
 }
 
