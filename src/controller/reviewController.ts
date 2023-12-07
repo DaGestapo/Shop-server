@@ -34,8 +34,29 @@ class ReviewController {
             }
 
             const review = await reviewService.createReview(user, item, reviewText);
+            const reviews = await reviewService.getReviweByItemId(itemId);
 
-            return res.json(review);
+            const response = [];
+
+            if(reviews) {
+                for(let i = 0; i < reviews.length; i++) {
+                    const review = reviews[i];
+                    const responseObj = {
+                        id: review.id,
+                        review: review.review,
+                        user: {
+                            id: review.user.id,
+                            username: review.user.username,
+                            email: review.user.email,
+                            img: review.user.user_info.img
+                        },
+                        rating: review.user.rating
+                    }
+                    response.push(responseObj);
+                }
+            }
+
+            return res.json({reviews: response, message: `Your review has been added!`});
 
        } catch (error) {
             return next(ApiError.badRequest(`Unexpected error - ${error}!`));
@@ -61,7 +82,7 @@ class ReviewController {
                             email: review.user.email,
                             img: review.user.user_info.img
                         },
-    
+                        rating: review.item.rating
                     }
                     response.push(responseObj);
                 }

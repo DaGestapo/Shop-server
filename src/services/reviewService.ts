@@ -38,6 +38,8 @@ class ReviewService {
             relations: {
                 user: {
                     user_info: true,
+                },
+                item: {
                     rating: true
                 }
             }

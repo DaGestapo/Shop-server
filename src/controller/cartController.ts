@@ -42,8 +42,8 @@ class CartController {
 
           const cartItem = await cartService.cretateCartItemTable(item, userCart);
           const cartItemInfo = await cartService.cretateCartItemInformationTable(cartItem, color, size, quantityNumber);
-          console.log(cartItem);
-          return res.json(cartItem);
+  
+          return res.json({message: `The item has been added to the cart!`});
 
 
        } catch (error) {
