@@ -20,7 +20,7 @@ class NewsController {
             }
             if(req.files && !(req.files.img instanceof Array)) {
                 const img = req.files.img;
-                img.mv(path.resolve(__dirname, '..', 'static', filename));
+                img.mv(path.resolve(__dirname, '..', 'static', 'svg', filename));
             }
             
             const newsArticle = await articleService.createActicleTable(News, {

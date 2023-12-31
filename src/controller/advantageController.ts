@@ -22,7 +22,7 @@ class AdvantageController {
                 return next(ApiError.badRequest('The image is missing!'));
             }
             if(!(files.img instanceof Array)) {
-                files.img.mv(path.resolve(__dirname, '..', 'static', filename));
+                files.img.mv(path.resolve(__dirname, '..', 'static', 'svg', filename));
             } 
             if(!title || !description) {
                 return next(ApiError.badRequest('There is no description and/or title of the article!'));

@@ -23,7 +23,7 @@ class FeaturedProductController {
             }
 
             if(!(files.img instanceof Array)) {
-                files.img.mv(path.resolve(__dirname, '..', 'static', filename));
+                files.img.mv(path.resolve(__dirname, '..', 'static', 'svg', filename));
             }
             if(!title || !price) {
                 return next(ApiError.badRequest('The name of the product or/and its price is not found!'));

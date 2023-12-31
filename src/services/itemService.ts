@@ -104,7 +104,6 @@ class ItemService extends TableServices {
     ) {
         const relations = this.relations;
         const price = Between(lowPrice, topPrice);
-
         if(!brandId && !typeId) { 
             return await Item.find({
                 relations,
@@ -223,12 +222,12 @@ class ItemService extends TableServices {
 
         if(imgs instanceof Array) {
             imgs.forEach(img => {
-                filenames.push(uuid.v4() + '.svg'); 
-                img.mv(path.resolve(__dirname, '..', 'static', filenames[filenames.length-1]));
+                filenames.push(uuid.v4() + '.png'); 
+                img.mv(path.resolve(__dirname, '..', 'static', 'png', filenames[filenames.length-1]));
             });
         } else {
-            filenames.push(uuid.v4() + '.svg'); 
-            imgs.mv(path.resolve(__dirname, '..', 'static', filenames[0]));
+            filenames.push(uuid.v4() + '.png'); 
+            imgs.mv(path.resolve(__dirname, '..', 'static', 'png', filenames[0]));
         }
 
         const imgsSave = dataSource.manager.create(ItemImgs, {

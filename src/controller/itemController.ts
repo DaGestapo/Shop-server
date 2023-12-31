@@ -46,10 +46,10 @@ class ItemController {
                 return next(ApiError.badRequest('This type or brand does not exist!'));
             }
             
-            const filename = uuid.v4() + '.svg';
+            const filename = uuid.v4() + '.png';
             if(!(req.files.img instanceof Array)) {
                 const img = req.files.img;
-                img.mv(path.resolve(__dirname, '..', 'static', filename));
+                img.mv(path.resolve(__dirname, '..', 'static', 'png', filename));
             }
     
             const item = await itemService.createTableByTableTypeAndProps(Item, {
@@ -75,24 +75,23 @@ class ItemController {
     public async getAll(req: Request, res: Response, next: NextFunction) {
         try {
             let {brandId, typeId, limit, hot, page, leftPrice, rightPrice} = req.query;
-
             let take = Number(limit) || 8;
             let pageNum = Number(page) || 1;
             let skip = pageNum * take - take;
 
             let typeNumberId = Number(typeId) || null;
             let brandNumberId = Number(brandId) || null;
-            let leftPriceNumber = Number(leftPrice) || null;
-            let rightPriceNumber = Number(rightPrice) || null;
+            let leftPriceNumber = Math.round(Number(leftPrice)) || null;
+            let rightPriceNumber = Math.round(Number(rightPrice)) || null;
      
             let items: Item[] | null = null;
             if(leftPriceNumber && rightPriceNumber) {
 
                 items = await itemService.getItemByPriceRange(
-                    leftPriceNumber, 
-                    rightPriceNumber, 
                     skip,
                     take,
+                    leftPriceNumber, 
+                    rightPriceNumber,
                     brandNumberId,
                     typeNumberId
                 );

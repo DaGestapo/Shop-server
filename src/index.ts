@@ -15,9 +15,17 @@ const PORT = process.env.PORT;
 app.use(cors());
 app.use(express.json());
 app.use(fileupload());
+
+
 app.use(express.static(
-    path.resolve(__dirname, 'static')
+    path.resolve(__dirname, 'static', 'png')
 ));
+app.use(express.static(
+    path.resolve(__dirname, 'static', 'jpg')
+))
+app.use(express.static(
+    path.resolve(__dirname, 'static', 'svg')
+))
 
 app.use('/api', router());
 
